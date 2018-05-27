@@ -16,13 +16,13 @@ class ToListen extends Component {
 
   render() {
     const { renderItem, keyExtractor } = this;
-    const { tracks } = this.props;
+    const { toListenTracks } = this.props;
     return (
       <View style={styles.container}>
-        {!tracks.length ?
+        {!toListenTracks.length ?
           <Text>Add songs to listen later.</Text> :
           <FlatList
-            data={tracks}
+            data={toListenTracks}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
           />}
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ tracks }) => {
-  return { tracks };
+const mapStateToProps = ({ toListenTracks }) => {
+  return { toListenTracks };
 };
 
 export default connect(mapStateToProps)(ToListen);

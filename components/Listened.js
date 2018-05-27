@@ -1,14 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, FlatList } from 'react-native';
 import Track from './Track';
 
-class Listened extends Component {
+class ToListen extends Component {
+  keyExtractor(item) {
+    return item.id;
+  }
+
+  renderItem({ item }) {
+    return (
+      <Track track={item} />
+    );
+  }
+
   render() {
-    const { tracks } = this.props;
+    const { renderItem, keyExtractor } = this;
+    const { listenedTracks } = this.props;
     return (
       <View style={styles.container}>
-        <Text>Listened songs will go here.</Text> :
+        {!listenedTracks.length ?
+          <Text>Listened songs will go here.</Text> :
+          <FlatList
+            data={listenedTracks}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+          />}
       </View>
     );
   }
@@ -23,8 +40,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ tracks }) => {
-  return { tracks };
+const mapStateToProps = ({ listenedTracks }) => {
+  return { listenedTracks };
 };
 
-export default connect(mapStateToProps)(Listened);
+export default connect(mapStateToProps)(ToListen);

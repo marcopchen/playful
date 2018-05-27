@@ -1,30 +1,36 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
 import SpotifyWebApi from 'spotify-web-api-js';
 const spotify = new SpotifyWebApi();
 const token = process.env.SPOTIFY_TOKEN;
 
-const GET_TRACKS = 'GET_TRACKS';
-const ADD_TRACK = 'ADD_TRACK';
+const ADD_TRACK_TO_LISTEN = 'ADD_TRACK_TO_LISTEN';
+const ADD_TRACK_TO_LISTENED = 'ADD_TRACK_TO_LISTENED';
 const DELETE_TRACK = 'DELETE_TRACK';
 
-const initialState = {
-  tracks: []
+const toListenTracksReducer = (toListenTracks = [], action) => {
+  switch (action.type) {
+    case ADD_TRACK_TO_LISTEN:
+      return [...toListenTracks, action.track];
+    case DELETE_TRACK:
+      return toListenTracks.filter(track => track.id !== action.track.id);
+  }
+  return toListenTracks;
 };
 
-const reducer = (state = initialState, action) => {
+const listenedTracksReducer = (listenedTracks = [], action) => {
   switch (action.type) {
-    case GET_TRACKS:
-      return Object.assign({}, state, { tracks: action.tracks });
-    case ADD_TRACK:
-      return Object.assign({}, state, { tracks: [...state.tracks, action.track] });
-    case DELETE_TRACK:
-      return Object.assign({}, state, { tracks: state.tracks.filter(track => track.id !== action.track.id) });
-    default:
-      return state;
+    case ADD_TRACK_TO_LISTENED:
+      return [...listenedTracks, action.track];
   }
+  return listenedTracks;
 };
+
+const reducer = combineReducers({
+  toListenTracks: toListenTracksReducer,
+  listenedTracks: listenedTracksReducer
+});
 
 const setToken = () => {
   if (token) {
@@ -32,9 +38,15 @@ const setToken = () => {
   }
 };
 
-const addTrack = (track) => {
+const addTrackToListen = (track) => {
   return (dispatch) => {
-    return dispatch({ type: ADD_TRACK, track });
+    return dispatch({ type: ADD_TRACK_TO_LISTEN, track });
+  };
+};
+
+const addTrackToListened = (track) => {
+  return (dispatch) => {
+    return dispatch({ type: ADD_TRACK_TO_LISTENED, track });
   };
 };
 
@@ -47,4 +59,4 @@ const deleteTrack = (track) => {
 const store = createStore(reducer, applyMiddleware(thunk));
 
 export default store;
-export { spotify, setToken, addTrack, deleteTrack };
+export { spotify, setToken, addTrackToListen, addTrackToListened, deleteTrack };

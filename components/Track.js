@@ -1,20 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Linking } from 'react-native';
 import { CheckBox } from 'react-native-elements';
-import { addTrack, deleteTrack } from '../store';
+import { addTrackToListen, addTrackToListened, deleteTrack } from '../store';
 
 class Track extends Component {
   onAddTrack(track) {
-    this.props.addTrack(track);
+    this.props.addTrackToListen(track);
   }
 
   onDeleteTrack(track) {
     this.props.deleteTrack(track);
   }
 
+  onTrack(track) {
+    this.props.addTrackToListened(track);
+    Linking.openURL(track.external_urls.spotify);
+  }
+
   render() {
-    const saved = this.props.tracks.find(track => {
+    const saved = this.props.toListenTracks.find(track => {
       return track.id === this.props.track.id;
     });
     return (
@@ -30,12 +35,15 @@ class Track extends Component {
         containerStyle={styles.row}
         textStyle={styles.rowText}
         checked={!!saved}
+        onPress={() => {
+          this.onTrack(this.props.track);
+        }}
         onIconPress={() => {
           if (!saved) {
-            this.onAddTrack(this.props.track)
+            this.onAddTrack(this.props.track);
           }
           else {
-            this.onDeleteTrack(this.props.track)
+            this.onDeleteTrack(this.props.track);
           }
         }}
       />
@@ -55,13 +63,14 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = ({ tracks }) => {
-  return { tracks };
+const mapStateToProps = ({ toListenTracks }) => {
+  return { toListenTracks };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addTrack: (track) => dispatch(addTrack(track)),
+    addTrackToListen: (track) => dispatch(addTrackToListen(track)),
+    addTrackToListened: (track) => dispatch(addTrackToListened(track)),
     deleteTrack: (track) => dispatch(deleteTrack(track))
   };
 };
